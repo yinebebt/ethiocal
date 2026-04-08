@@ -91,9 +91,9 @@ func TestFasting(t *testing.T) {
 func TestBahireHasab(t *testing.T) {
 	res, err := BahireHasab(2016)
 	if err != nil {
-		t.Errorf("Test faled, expected %v but got %v ", nil, err)
+		t.Errorf("Test failed, expected %v but got %v ", nil, err)
 	}
 	if res.Year.Year != 2016 {
-		t.Errorf("Test faled, expected %v but got %v ", 2016, res.Year.Year)
+		t.Errorf("Test failed, expected %v but got %v ", 2016, res.Year.Year)
 	}
 }

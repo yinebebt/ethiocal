@@ -18,9 +18,21 @@ var gtoeCmd = &cobra.Command{
 	Short: "Convert Gregorian date to Ethiopian date",
 	Args:  cobra.ExactArgs(3),
 	Run: func(cmd *cobra.Command, args []string) {
-		year, _ := strconv.Atoi(args[0])
-		month, _ := strconv.Atoi(args[1])
-		day, _ := strconv.Atoi(args[2])
+		year, err := strconv.Atoi(args[0])
+		if err != nil {
+			fmt.Println("Error: invalid year:", args[0])
+			return
+		}
+		month, err := strconv.Atoi(args[1])
+		if err != nil {
+			fmt.Println("Error: invalid month:", args[1])
+			return
+		}
+		day, err := strconv.Atoi(args[2])
+		if err != nil {
+			fmt.Println("Error: invalid day:", args[2])
+			return
+		}
 
 		etDate, err := dateconverter.Ethiopian(year, month, day)
 		if err != nil {
@@ -38,9 +50,21 @@ var etogCmd = &cobra.Command{
 	Short: "Convert Ethiopian date to Gregorian date",
 	Args:  cobra.ExactArgs(3),
 	Run: func(cmd *cobra.Command, args []string) {
-		year, _ := strconv.Atoi(args[0])
-		month, _ := strconv.Atoi(args[1])
-		day, _ := strconv.Atoi(args[2])
+		year, err := strconv.Atoi(args[0])
+		if err != nil {
+			fmt.Println("Error: invalid year:", args[0])
+			return
+		}
+		month, err := strconv.Atoi(args[1])
+		if err != nil {
+			fmt.Println("Error: invalid month:", args[1])
+			return
+		}
+		day, err := strconv.Atoi(args[2])
+		if err != nil {
+			fmt.Println("Error: invalid day:", args[2])
+			return
+		}
 
 		gregDate, err := dateconverter.Gregorian(year, month, day)
 		if err != nil {

@@ -2,9 +2,7 @@ package handler
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	"github.com/yinebebt/ethiocal/bahirehasab"
-	"github.com/yinebebt/ethiocal/dateconverter"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -13,20 +11,29 @@ import (
 	"strings"
 	"syscall"
 
-	"errors"
+	"github.com/yinebebt/ethiocal/bahirehasab"
+	"github.com/yinebebt/ethiocal/dateconverter"
 )
 
-func BahireHasab(ctx *gin.Context) {
-	yearString, state := ctx.Params.Get("year")
-	if !state {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+func writeJSON(w http.ResponseWriter, status int, data any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Printf("failed to write response: %v", err)
+	}
+}
+
+func BahireHasab(w http.ResponseWriter, r *http.Request) {
+	yearString := r.PathValue("year")
+	if yearString == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"message": "Empty year value",
 		})
 		return
 	}
 	year, err := strconv.Atoi(yearString)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"message": "not a valid year",
 		})
 		return
@@ -34,93 +41,83 @@ func BahireHasab(ctx *gin.Context) {
 
 	festival, err := bahirehasab.BahireHasab(year)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
+		writeJSON(w, http.StatusInternalServerError, map[string]string{
 			"error": err.Error(),
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
+	writeJSON(w, http.StatusOK, map[string]any{
 		"data": festival,
 	})
 }
 
-func Ethiopian(ctx *gin.Context) {
-	dateString, state := ctx.Params.Get("date")
-	if !state {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+func parseDate(w http.ResponseWriter, r *http.Request) (year, month, day int, ok bool) {
+	dateString := r.PathValue("date")
+	if dateString == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"message": "empty date",
 		})
-		return
+		return 0, 0, 0, false
 	}
-	var date = strings.Split(dateString, "-")
-	if len(date) > 3 {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "not a valid date",
+	parts := strings.Split(dateString, "-")
+	if len(parts) != 3 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"message": "not a valid date, expected format: year-month-day",
 		})
-		return
+		return 0, 0, 0, false
 	}
 
-	day, _ := strconv.Atoi(date[2])
-	month, _ := strconv.Atoi(date[1])
-	year, _ := strconv.Atoi(date[0])
-	EtDate, err := dateconverter.Ethiopian(year, month, day)
+	year, err1 := strconv.Atoi(parts[0])
+	month, err2 := strconv.Atoi(parts[1])
+	day, err3 := strconv.Atoi(parts[2])
+	if err1 != nil || err2 != nil || err3 != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"message": "date must contain valid integers",
+		})
+		return 0, 0, 0, false
+	}
+	return year, month, day, true
+}
+
+func Ethiopian(w http.ResponseWriter, r *http.Request) {
+	year, month, day, ok := parseDate(w, r)
+	if !ok {
+		return
+	}
+	etDate, err := dateconverter.Ethiopian(year, month, day)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"ethiopian_date": EtDate.Format("2006-01-02"),
+	writeJSON(w, http.StatusOK, map[string]string{
+		"ethiopian_date": etDate.Format("2006-01-02"),
 	})
 }
 
-func Gregorian(ctx *gin.Context) {
-	dateString, state := ctx.Params.Get("date")
-	if !state {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "empty date",
-		})
+func Gregorian(w http.ResponseWriter, r *http.Request) {
+	year, month, day, ok := parseDate(w, r)
+	if !ok {
 		return
 	}
-	var date = strings.Split(dateString, "-")
-	if len(date) > 3 {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "not a valid date",
-		})
-		return
-	}
-
-	day, _ := strconv.Atoi(date[2])
-	month, _ := strconv.Atoi(date[1])
-	year, _ := strconv.Atoi(date[0])
-
-	resDate, err := dateconverter.Gregorian(year, month, day)
+	gregDate, err := dateconverter.Gregorian(year, month, day)
 	if err != nil {
-		if err.Error() == "not a valid date" {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-		} else {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"error": errors.New("internal server error"),
-			})
-		}
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": err.Error(),
+		})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"gregorian_date": resDate.Format("2006-01-02"),
+	writeJSON(w, http.StatusOK, map[string]string{
+		"gregorian_date": gregDate.Format("2006-01-02"),
 	})
 }
 
 func Init() {
-	handler := gin.Default()
-	v0 := handler.Group("/v0")
-	{
-		v0.GET("/etog/:date", Gregorian)
-		v0.GET("/gtoe/:date", Ethiopian)
-		v0.GET("/bahir/:year", BahireHasab)
-	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /v0/bahir/{year}", BahireHasab)
+	mux.HandleFunc("GET /v0/gtoe/{date}", Ethiopian)
+	mux.HandleFunc("GET /v0/etog/{date}", Gregorian)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -129,7 +126,7 @@ func Init() {
 
 	srv := &http.Server{
 		Addr:    ":" + port,
-		Handler: handler,
+		Handler: mux,
 	}
 
 	go func() {
