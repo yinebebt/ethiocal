@@ -1,10 +1,16 @@
 test:
 	go test -v -cover ./...
 
+lint:
+	golangci-lint run ./...
+
 run:
 	go run .
 
 build:
 	go build -o ethiocal .
 
-.PHONY: test run build
+package:
+	fyne package -release
+
+.PHONY: test lint run build package

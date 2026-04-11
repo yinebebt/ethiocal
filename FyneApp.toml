@@ -1,0 +1,8 @@
+Website = "https://github.com/yinebebt/ethiocal"
+
+[Details]
+  Icon = "logo.svg"
+  Name = "Ethiocal"
+  ID = "com.github.yinebebt.ethiocal"
+  Version = "1.2.0"
+  Build = 1

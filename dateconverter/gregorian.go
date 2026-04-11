@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Gregorian date object representation of provided Ethiopian date
+// Gregorian converts an Ethiopian date to a Gregorian date, returned as a time.Time.
 func Gregorian(year, month, date int) (time.Time, error) {
 	var gregorianDate int
 	var dateResult string
@@ -42,8 +42,8 @@ func Gregorian(year, month, date int) (time.Time, error) {
 	}
 
 	// if ethiopian year is leap year, paguemain has six days
-	if year-1%4 == 3 {
-		until += 1
+	if (year-1)%4 == 3 {
+		until++
 	}
 
 	//calculate month and date incrementally
@@ -60,7 +60,7 @@ func Gregorian(year, month, date int) (time.Time, error) {
 	}
 	//  if m > 4, we're already on next Gregorian year
 	if m > 4 {
-		gregorianYear += 1
+		gregorianYear++
 	}
 	//  Gregorian months ordered according to Ethiopian
 	order := []int{8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9}
@@ -78,8 +78,7 @@ func Gregorian(year, month, date int) (time.Time, error) {
 	dateResult = "" + strconv.Itoa(gregorianYear) + "-" + mon + "-" + da
 	res, err := time.Parse("2006-01-02", dateResult)
 	if err != nil {
-		fmt.Print("unable to parse dateResult", err)
-		return time.Time{}, errors.New("not a valid date")
+		return time.Time{}, fmt.Errorf("unable to parse converted date %q: %w", dateResult, err)
 	}
 	return res, nil
 }

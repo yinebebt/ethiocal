@@ -2,32 +2,37 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/yinebebt/ethiocal/handler"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/yinebebt/ethiocal/gui"
+	"github.com/yinebebt/ethiocal/handler"
 )
 
-var cli bool
+var server bool
 
 var rootCmd = &cobra.Command{
 	Use:   "ethiocal",
-	Short: "Ethiopian Calendar (ባሕረ-ሐሳብ) and date converter",
-	Long: `ethiocal is used to get fasting and holidays date with in a year based on Ethiopian Orthodox 
-church calendar. It also do date conversion between Ethiopian and Gregorian in the format yy-mm-dd.`,
+	Short: "Ethiocal — Ethiopian Calendar (ባሕረ-ሐሳብ) and date converter",
+	Long: `Ethiocal is used to get fasting and holiday dates within a year based on Ethiopian
+Orthodox church calendar. It also converts dates between Ethiopian and Gregorian calendars.
+
+Running without arguments launches the GUI. Use subcommands for CLI mode,
+or --server to start the HTTP API.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if !cli {
+		if server {
 			fmt.Println("Running in server mode")
 			handler.Init()
+			return
 		}
+		gui.Run()
 	},
 }
 
+// Execute runs the root command. When invoked with no arguments, it launches
+// the GUI. Subcommands (bahir, convert) provide CLI access. The --server flag
+// starts the HTTP API.
 func Execute() {
-	if len(os.Args) == 1 || (len(os.Args) == 2 && os.Args[1] == "--cli") {
-		_ = rootCmd.Help()
-		return
-	}
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
@@ -35,7 +40,7 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVar(&cli, "cli", true, "Run ethiocal in CLI mode")
+	rootCmd.Flags().BoolVar(&server, "server", false, "Start the HTTP API server")
 
 	rootCmd.AddCommand(bahirCmd)
 	rootCmd.AddCommand(convertCmd)

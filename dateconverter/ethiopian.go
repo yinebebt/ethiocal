@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Ethiopian return date string representation of provided Gregorian date
+// Ethiopian converts a Gregorian date to an Ethiopian date, returned as a time.Time.
 func Ethiopian(year, month, date int) (time.Time, error) {
 	var december int
 	var ethiopianDate int
@@ -17,10 +17,9 @@ func Ethiopian(year, month, date int) (time.Time, error) {
 		return time.Time{}, errors.New("not a valid date")
 	}
 
-	//  date between 5 and 14 of May 1582 are invalid
+	// Dates between 5 and 14 of October 1582 are invalid (Gregorian reform gap).
 	if month == 10 && date >= 5 && date <= 14 && year == 1582 {
-		fmt.Printf("Invalid Date between 5-14 May 1582.")
-		return time.Time{}, errors.New("not a valid date")
+		return time.Time{}, errors.New("invalid date: October 5-14, 1582 do not exist in the Gregorian calendar")
 	}
 
 	// Number of days in gregorian months starting with January (index 1)
@@ -88,7 +87,7 @@ func Ethiopian(year, month, date int) (time.Time, error) {
 	}
 	//  if m > 4, we're already on next Ethiopian year
 	if m > 10 {
-		ethiopianYear += 1
+		ethiopianYear++
 	}
 	// Ethiopian months ordered according to Gregorian
 	order := []int{0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1, 2, 3, 4}
@@ -106,8 +105,7 @@ func Ethiopian(year, month, date int) (time.Time, error) {
 	dateResult = strconv.Itoa(ethiopianYear) + "-" + mon + "-" + da
 	res, err := time.Parse("2006-01-02", dateResult)
 	if err != nil {
-		fmt.Print("unable to parse dateResult", err)
-		return time.Time{}, errors.New("not a valid date")
+		return time.Time{}, fmt.Errorf("unable to parse converted date %q: %w", dateResult, err)
 	}
 	return res, nil
 }

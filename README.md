@@ -1,60 +1,118 @@
 <p align="center">
-<img src="logo.png" alt="logo" width="110" height="110">
+<img src="logo.svg" alt="logo" width="110" height="110">
 </p>
-<h1 align="center"><a href="https://pkg.go.dev/github.com/yinebebt/ethiocal">Ethiopian Calendar (ባሕረ-ሐሳብ)</a></h1>
+<h1 align="center"><a href="https://pkg.go.dev/github.com/yinebebt/ethiocal">Ethiocal — Ethiopian Calendar (ባሕረ-ሐሳብ)</a></h1>
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/yinebebt/ethiocal.svg)](https://pkg.go.dev/github.com/yinebebt/ethiocal@v0.2.5)
+[![Go Reference](https://pkg.go.dev/badge/github.com/yinebebt/ethiocal.svg)](https://pkg.go.dev/github.com/yinebebt/ethiocal)
 [![ci-badge](https://github.com/yinebebt/ethiocal/actions/workflows/ci.yml/badge.svg)](https://github.com/yinebebt/ethiocal/actions/workflows/ci.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/yinebebt/ethiocal)](https://goreportcard.com/report/github.com/yinebebt/ethiocal)
 
 ## Description
-The Ethiopian calendar(ባሕረ-ሀሳብ) is used to get Fasting and Holiday's specific date with in a year based on 
-[EOTC](https://www.ethiopianorthodox.org/) calendar. It also designed to facilitate the conversion between Ethiopian dates (in the format yy-mm-dd) and 
-Gregorian dates. Ethiopia follows its own calendar system, which consists of 13 months, each with 30 days. 
 
-### Functionality
-This tool allows users to:
+Ethiocal is an Ethiopian calendar (ባሕረ-ሀሳብ) tool for retrieving fasting and holiday dates based on the
+[EOTC](https://www.ethiopianorthodox.org/) calendar, and converting between Ethiopian and
+Gregorian dates. Ethiopia follows its own calendar with 13 months (twelve 30-day months
+plus a 5- or 6-day 13th month).
+
+### Features
+
+* **GUI desktop app** — launch with no arguments for a graphical interface.
+* **CLI** — subcommands for scripting and terminal use.
+* **HTTP API** — run as a server for integration with other services.
 * Get Ethiopian fasting and religious festival dates for a specific year.
-* Convert Ethiopian dates to Gregorian dates.
-* Convert Gregorian dates to Ethiopian dates.
+* Convert Ethiopian dates to Gregorian dates and vice versa.
 
-### Usage
-The tool can be used in two ways:
+## Installation
 
-1. **Run on Your Own Server:**
-    - Run the server by configuring it locally or on a cloud provider.
+### Download a binary (no Go required)
 
-2. **CLI Usage:**
-    - A comprehensive command-line interface (CLI) is available for direct usage.
-    - The CLI supports the following commands:
-        - `bahir`: Get Ethiopian fasting and religious festival dates for a given year.
-        - `convert`: Convert dates between Ethiopian and Gregorian calendars.
-        - `help`: Help on usage.
+Pre-built binaries are available on the [Releases](https://github.com/yinebebt/ethiocal/releases) page. Pick your platform:
 
-#### Examples:
+| Platform | Download |
+| --- | --- |
+| macOS (Apple Silicon) | `curl -Lo ethiocal https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-macos-arm64 && chmod +x ethiocal` |
+| macOS (Intel) | `curl -Lo ethiocal https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-macos-amd64 && chmod +x ethiocal` |
+| Linux (x86_64) | `curl -Lo ethiocal https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-linux-amd64 && chmod +x ethiocal` |
+| Windows (x86_64) | [Download ethiocal.exe](https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-windows-amd64.exe) |
 
-To get religious dates for a specific Ethiopian year:
-```bash
-ethiocal bahir 2017
-```
+### Install with Go
 
-To convert a Gregorian date to Ethiopian:
-```bash
-ethiocal convert gtoe 2025-02-02
-```
-
-To convert an Ethiopian date to Gregorian:
-```bash
-ethiocal convert etog 2017-05-25
-```
-
-To enable server mode:
-```bash
-ethiocal --cli=false
-```
-
-### Installation
-Install using the following Go command:
 ```bash
 go install github.com/yinebebt/ethiocal@latest
 ```
+
+### Build from source
+
+```bash
+git clone https://github.com/yinebebt/ethiocal.git
+cd ethiocal
+go build -o ethiocal .
+```
+
+> **Note:** Building requires a C compiler and OpenGL headers because Fyne uses
+> CGO. On Ubuntu/Debian: `sudo apt-get install libgl1-mesa-dev xorg-dev`.
+> macOS and Windows have these out of the box.
+
+## Usage
+
+### GUI (default)
+
+Simply run `ethiocal` with no arguments to launch the desktop app:
+
+```bash
+ethiocal
+```
+
+The GUI provides two tabs:
+
+* **Date Converter** — pick a direction (Gregorian → Ethiopian or Ethiopian → Gregorian), enter a date, and convert.
+* **Bahire-Hasab** — enter an Ethiopian year to view all fasting and festival dates.
+
+### CLI
+
+```bash
+# Get religious dates for Ethiopian year 2017
+ethiocal bahir 2017
+
+# Convert Gregorian date to Ethiopian (year month day as separate args)
+ethiocal convert gtoe 2025 2 2
+
+# Convert Ethiopian date to Gregorian
+ethiocal convert etog 2017 5 25
+```
+
+### HTTP Server
+
+```bash
+ethiocal --server
+```
+
+Starts the API on port `8080` (override with the `PORT` environment variable).
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/bahir/{year}` | Bahire-Hasab calendar for the given Ethiopian year |
+| `GET /api/gtoe/{date}` | Convert Gregorian to Ethiopian (`YYYY-MM-DD`) |
+| `GET /api/etog/{date}` | Convert Ethiopian to Gregorian (`YYYY-MM-DD`) |
+
+### As a Go library
+
+```go
+import (
+    "github.com/yinebebt/ethiocal/bahirehasab"
+    "github.com/yinebebt/ethiocal/dateconverter"
+)
+
+// Get festivals for Ethiopian year 2017
+festival, err := bahirehasab.BahireHasab(2017)
+
+// Gregorian → Ethiopian
+etDate, err := dateconverter.Ethiopian(2025, 2, 2)
+
+// Ethiopian → Gregorian
+gregDate, err := dateconverter.Gregorian(2017, 5, 25)
+```
+
+## License
+
+See [LICENSE](LICENSE).
