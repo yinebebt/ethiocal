@@ -26,7 +26,7 @@ jobs:
     - name: golangci-lint
       uses: golangci/golangci-lint-action@v7
       with:
-        version: v2.5.0
+        version: v2.11.3
 
   test:
     runs-on: ubuntu-latest
@@ -59,7 +59,7 @@ jobs:
           - runner: macos-latest
             os: darwin
             artifact: ethiocal-macos-arm64.app.zip
-          - runner: macos-13
+          - runner: macos-15-intel
             os: darwin
             artifact: ethiocal-macos-amd64.app.zip
           - runner: windows-latest

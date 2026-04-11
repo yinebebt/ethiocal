@@ -11,5 +11,8 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends libgl1 && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt
 COPY --from=builder /app/ethiocal .
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+RUN chown appuser:appgroup ethiocal
+USER appuser
 EXPOSE 8080
 CMD ["./ethiocal", "--server"]

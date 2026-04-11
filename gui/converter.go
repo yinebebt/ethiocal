@@ -79,6 +79,10 @@ func newConverterTab() fyne.CanvasObject {
 		cal = widget.NewCalendar(t, cal.OnChanged)
 		calBox.Objects = []fyne.CanvasObject{cal}
 		calBox.Refresh()
+		selectedYear = y
+		selectedMonth = mIdx + 1
+		selectedDay = 1
+		dateBtn.SetText(fmt.Sprintf("%04d-%02d-%02d", selectedYear, selectedMonth, selectedDay))
 	}
 
 	yearSelect.OnChanged = func(_ string) { jumpCalendar() }

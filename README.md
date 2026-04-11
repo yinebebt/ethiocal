@@ -30,10 +30,10 @@ Pre-built binaries are available on the [Releases](https://github.com/yinebebt/e
 
 | Platform | Download |
 | --- | --- |
-| macOS (Apple Silicon) | `curl -Lo ethiocal https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-macos-arm64 && chmod +x ethiocal` |
-| macOS (Intel) | `curl -Lo ethiocal https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-macos-amd64 && chmod +x ethiocal` |
-| Linux (x86_64) | `curl -Lo ethiocal https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-linux-amd64 && chmod +x ethiocal` |
-| Windows (x86_64) | [Download ethiocal.exe](https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-windows-amd64.exe) |
+| macOS (Apple Silicon) | `curl -Lo ethiocal.zip https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-macos-arm64.app.zip && unzip ethiocal.zip` |
+| macOS (Intel) | `curl -Lo ethiocal.zip https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-macos-amd64.app.zip && unzip ethiocal.zip` |
+| Linux (x86_64) | `curl -Lo ethiocal.tar.gz https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-linux-amd64.tar.gz && tar xzf ethiocal.tar.gz` |
+| Windows (x86_64) | `curl -Lo ethiocal.zip https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-windows-amd64.exe.zip && unzip ethiocal.zip` |
 
 ### Install with Go
 

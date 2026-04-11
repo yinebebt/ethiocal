@@ -13,7 +13,7 @@ func Ethiopian(year, month, date int) (time.Time, error) {
 	var ethiopianDate int
 	var dateResult string
 
-	if !isValid(year, month, date) {
+	if !isValidGregorian(year, month, date) {
 		return time.Time{}, errors.New("not a valid date")
 	}
 

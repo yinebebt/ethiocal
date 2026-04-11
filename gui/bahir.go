@@ -16,14 +16,14 @@ import (
 	"github.com/yinebebt/ethiocal/dateconverter"
 )
 
-// Ethiopian month names indexed by month number (1-13).
-var ethMonths = [14]string{
-	"", "Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir", "Yekatit",
+// Ethiopian month names indexed by 0-based month number (0=Meskerem .. 12=Pagume).
+var ethMonths = [13]string{
+	"Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir", "Yekatit",
 	"Megabit", "Miyazya", "Ginbot", "Sene", "Hamle", "Nehase", "Pagume",
 }
 
 func fmtDateNamed(d bahirehasab.Date) string {
-	if d.MonthOfTheYear >= 1 && d.MonthOfTheYear <= 13 {
+	if d.MonthOfTheYear >= 0 && d.MonthOfTheYear <= 12 {
 		return fmt.Sprintf("%s %d", ethMonths[d.MonthOfTheYear], d.DateOfTheMonth)
 	}
 	return fmt.Sprintf("Month %d, Day %d", d.MonthOfTheYear, d.DateOfTheMonth)
@@ -133,9 +133,13 @@ func newBahirTab() fyne.CanvasObject {
 	yearEntry := widget.NewEntry()
 	yearEntry.SetText(strconv.Itoa(curYear))
 	yearEntry.OnChanged = func(s string) {
-		if s != "" {
-			lookup(s)
+		if s == "" {
+			festCard.Hide()
+			errorText.Text = ""
+			errorText.Hide()
+			return
 		}
+		lookup(s)
 	}
 
 	decrementBtn := widget.NewButton("-", func() {

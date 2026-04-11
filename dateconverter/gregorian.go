@@ -12,7 +12,7 @@ func Gregorian(year, month, date int) (time.Time, error) {
 	var gregorianDate int
 	var dateResult string
 
-	if !isValid(year, month, date) {
+	if !isValidEthiopian(year, month, date) {
 		return time.Time{}, errors.New("not a valid date")
 	}
 	// Ethiopian new year in Gregorian calendar

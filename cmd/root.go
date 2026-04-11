@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/yinebebt/ethiocal/gui"
 	"github.com/yinebebt/ethiocal/handler"
 )
 
@@ -25,7 +24,7 @@ or --server to start the HTTP API.`,
 			handler.Init()
 			return
 		}
-		gui.Run()
+		runGUI()
 	},
 }
 
