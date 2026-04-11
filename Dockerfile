@@ -1,14 +1,13 @@
 FROM golang:1.26 AS builder
-RUN apt-get update && apt-get install -y gcc libgl1-mesa-dev xorg-dev
+RUN apt-get update && apt-get install -y --no-install-recommends gcc libc6-dev && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -trimpath -ldflags="-s -w" -o ethiocal .
+RUN go build -tags noui -trimpath -ldflags="-s -w" -o ethiocal .
 
 
 FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y --no-install-recommends libgl1 && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt
 COPY --from=builder /app/ethiocal .
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser

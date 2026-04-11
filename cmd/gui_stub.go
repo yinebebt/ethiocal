@@ -8,6 +8,6 @@ import (
 )
 
 func runGUI() {
-	fmt.Println("GUI is not available in this build. Use CLI subcommands or --server instead.")
+	fmt.Fprintln(os.Stderr, "GUI is not available in this build. Use CLI subcommands or --server instead.")
 	os.Exit(1)
 }
