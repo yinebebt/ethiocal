@@ -82,7 +82,7 @@ jobs:
         sudo apt-get install -y gcc libgl1-mesa-dev xorg-dev
 
     - name: Install fyne CLI
-      run: go install fyne.io/fyne/v2/cmd/fyne@v2.7.3
+      run: go install fyne.io/tools/cmd/fyne@latest
 
     - name: Package
       run: fyne package -os ${{ matrix.os }} -release

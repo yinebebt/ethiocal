@@ -9,7 +9,7 @@
 
 ## Description
 
-Ethiocal is an Ethiopian calendar (ባሕረ-ሀሳብ) tool for retrieving fasting and holiday dates based on the
+Ethiocal is an Ethiopian calendar (ባሕረ-ሐሳብ) tool for retrieving fasting and holiday dates based on the
 [EOTC](https://www.ethiopianorthodox.org/) calendar, and converting between Ethiopian and
 Gregorian dates. Ethiopia follows its own calendar with 13 months (twelve 30-day months
 plus a 5- or 6-day 13th month).
@@ -57,7 +57,7 @@ go build -o ethiocal .
 
 ### GUI (default)
 
-Simply run `ethiocal` with no arguments to launch the desktop app:
+Run `ethiocal` with no arguments to launch the desktop app:
 
 ```bash
 ethiocal
