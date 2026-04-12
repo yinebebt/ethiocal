@@ -51,11 +51,12 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [ lint, test ]
     strategy:
+      fail-fast: false
       matrix:
         include:
           - runner: ubuntu-latest
             os: linux
-            artifact: ethiocal-linux-amd64.tar.gz
+            artifact: ethiocal-linux-amd64.tar.xz
           - runner: macos-latest
             os: darwin
             artifact: ethiocal-macos-arm64.app.zip
@@ -93,7 +94,7 @@ jobs:
 
     - name: Prepare artifact (Linux)
       if: matrix.os == 'linux'
-      run: mv Ethiocal.tar.gz ${{ matrix.artifact }}
+      run: mv Ethiocal.tar.xz ${{ matrix.artifact }}
 
     - name: Prepare artifact (Windows)
       if: matrix.os == 'windows'

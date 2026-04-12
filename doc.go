@@ -3,27 +3,28 @@
 //
 // This module offers two importable packages:
 //
-//   - [bahirehasab] — Ethiopian fasting and festival dates for a given year.
-//   - [dateconverter] — conversion between Gregorian and Ethiopian dates.
+//   - [github.com/yinebebt/ethiocal/bahirehasab] — Ethiopian fasting and festival dates for a given year.
+//   - [github.com/yinebebt/ethiocal/dateconverter] — conversion between Gregorian and Ethiopian dates.
 //
-// The ethiocal binary can be used in three ways:
+// # GUI (default)
 //
-//  1. GUI (default):
-//     Run without arguments to launch the desktop application.
+// Run without arguments to launch the desktop application.
 //
-//     ethiocal
+//	ethiocal
 //
-//  2. CLI:
-//     Use subcommands for terminal and scripting workflows.
+// # CLI
 //
-//     ethiocal bahir 2017
-//     ethiocal convert gtoe 2025 2 2
-//     ethiocal convert etog 2017 5 25
+// Use subcommands for terminal and scripting workflows.
 //
-//  3. HTTP Server:
-//     Start the REST API with the --server flag.
+//	ethiocal bahir 2017
+//	ethiocal convert gtoe 2025 2 2
+//	ethiocal convert etog 2017 5 25
 //
-//     ethiocal --server
+// # HTTP Server
+//
+// Start the REST API with the --server flag.
+//
+//	ethiocal --server
 //
 // To integrate into your own Go project, import the bahirehasab and
 // dateconverter packages directly.

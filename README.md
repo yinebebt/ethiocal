@@ -32,7 +32,7 @@ Pre-built binaries are available on the [Releases](https://github.com/yinebebt/e
 | --- | --- |
 | macOS (Apple Silicon) | `curl -Lo ethiocal.zip https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-macos-arm64.app.zip && unzip ethiocal.zip` |
 | macOS (Intel) | `curl -Lo ethiocal.zip https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-macos-amd64.app.zip && unzip ethiocal.zip` |
-| Linux (x86_64) | `curl -Lo ethiocal.tar.gz https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-linux-amd64.tar.gz && tar xzf ethiocal.tar.gz` |
+| Linux (x86_64) | `curl -Lo ethiocal.tar.xz https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-linux-amd64.tar.xz && tar xJf ethiocal.tar.xz` |
 | Windows (x86_64) | `curl -Lo ethiocal.zip https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-windows-amd64.exe.zip && unzip ethiocal.zip` |
 
 ### Install with Go
