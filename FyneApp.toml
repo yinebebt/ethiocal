@@ -1,7 +1,7 @@
 Website = "https://github.com/yinebebt/ethiocal"
 
 [Details]
-  Icon = "logo.svg"
+  Icon = "logo.png"
   Name = "Ethiocal"
   ID = "com.github.yinebebt.ethiocal"
   Version = "1.2.0"
