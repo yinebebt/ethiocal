@@ -18,6 +18,8 @@ var tewsak = map[string]int{
 	"dihnet":     121,
 }
 
+// BahireHasab computes the Ethiopian religious calendar (fasting and festival
+// dates) for the given Ethiopian year.
 func BahireHasab(etYear int) (Festival, error) {
 	if etYear < 0 {
 		return Festival{}, fmt.Errorf("invalid Ethiopian Year %v", etYear)

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="230" fill="#0f1729"/>
+  <!-- Calendar body -->
+  <g transform="translate(116,100)">
+    <!-- Calendar shape -->
+    <rect x="0" y="30" width="280" height="200" rx="16" fill="#1e2a45" stroke="#3a506b" stroke-width="2"/>
+    <!-- Calendar top bar -->
+    <rect x="0" y="30" width="280" height="50" rx="16" fill="#2d6a4f"/>
+    <rect x="0" y="64" width="280" height="16" fill="#2d6a4f"/>
+    <!-- Calendar rings -->
+    <rect x="80" y="18" width="14" height="30" rx="4" fill="#3a506b"/>
+    <rect x="186" y="18" width="14" height="30" rx="4" fill="#3a506b"/>
+    <!-- "13" in header -->
+    <text x="140" y="66" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="bold" fill="#e0e0e0">13</text>
+    <!-- Day grid: 7 columns x 4 rows -->
+    <g fill="#5a7d9a">
+      <!-- Row 1 -->
+      <circle cx="40" cy="105" r="6"/>
+      <circle cx="80" cy="105" r="6"/>
+      <circle cx="120" cy="105" r="6"/>
+      <circle cx="160" cy="105" r="6"/>
+      <circle cx="200" cy="105" r="6"/>
+      <circle cx="240" cy="105" r="6"/>
+      <!-- Row 2 -->
+      <circle cx="40" cy="135" r="6"/>
+      <circle cx="80" cy="135" r="6"/>
+      <circle cx="120" cy="135" r="6"/>
+      <circle cx="160" cy="135" r="6"/>
+      <circle cx="200" cy="135" r="6"/>
+      <circle cx="240" cy="135" r="6"/>
+      <!-- Row 3 -->
+      <circle cx="40" cy="165" r="6"/>
+      <circle cx="80" cy="165" r="6"/>
+      <circle cx="120" cy="165" r="6"/>
+      <circle cx="200" cy="165" r="6"/>
+      <circle cx="240" cy="165" r="6"/>
+      <!-- Row 4 -->
+      <circle cx="40" cy="195" r="6"/>
+      <circle cx="80" cy="195" r="6"/>
+      <circle cx="120" cy="195" r="6"/>
+      <circle cx="160" cy="195" r="6"/>
+      <circle cx="200" cy="195" r="6"/>
+    </g>
+    <!-- Highlighted day -->
+    <circle cx="160" cy="165" r="10" fill="#2d6a4f"/>
+  </g>
+  <!-- App name -->
+  <text x="256" y="365" text-anchor="middle" font-family="monospace" font-size="32" font-weight="bold" fill="#c8d6e5" letter-spacing="3">
+    ethiocal
+  </text>
+  <!-- Subtitle -->
+  <text x="256" y="393" text-anchor="middle" font-family="'Kefa', 'Noto Sans Ethiopic', 'Abyssinica SIL', sans-serif" font-size="15" fill="#5a7d9a" letter-spacing="1">
+    Ethiopian Calendar (ባሕረ-ሀሳብ)
+  </text>
+</svg>

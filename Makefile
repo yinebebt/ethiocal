@@ -1,5 +1,10 @@
+all: build
+
 test:
 	go test -v -cover ./...
+
+lint:
+	golangci-lint run ./...
 
 run:
 	go run .
@@ -7,4 +12,10 @@ run:
 build:
 	go build -o ethiocal .
 
-.PHONY: test run build
+clean:
+	rm -f ethiocal
+
+package:
+	fyne package -release
+
+.PHONY: all test lint run build clean package

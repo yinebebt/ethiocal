@@ -3,11 +3,12 @@ name: ci
 on:
   push:
     branches: [ "main" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -15,10 +16,111 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.24'
+        go-version: '1.26'
 
-    - name: Build
-      run: go build -v ./...
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc libgl1-mesa-dev xorg-dev
+
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v7
+      with:
+        version: v2.11.3
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.26'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc libgl1-mesa-dev xorg-dev
 
     - name: Test
       run: go test -v -cover ./...
+
+  # Package platform-native app bundles on each OS runner (CGO requires native C compiler).
+  package:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [ lint, test ]
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            os: linux
+            artifact: ethiocal-linux-amd64.tar.gz
+          - runner: macos-latest
+            os: darwin
+            artifact: ethiocal-macos-arm64.app.zip
+          - runner: macos-15-intel
+            os: darwin
+            artifact: ethiocal-macos-amd64.app.zip
+          - runner: windows-latest
+            os: windows
+            artifact: ethiocal-windows-amd64.exe.zip
+
+    runs-on: ${{ matrix.runner }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.26'
+
+    - name: Install system dependencies (Linux)
+      if: matrix.os == 'linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc libgl1-mesa-dev xorg-dev
+
+    - name: Install fyne CLI
+      run: go install fyne.io/tools/cmd/fyne@latest
+
+    - name: Package
+      run: fyne package -os ${{ matrix.os }} -release
+
+    - name: Prepare artifact (macOS)
+      if: matrix.os == 'darwin'
+      run: zip -r ${{ matrix.artifact }} Ethiocal.app
+
+    - name: Prepare artifact (Linux)
+      if: matrix.os == 'linux'
+      run: mv Ethiocal.tar.gz ${{ matrix.artifact }}
+
+    - name: Prepare artifact (Windows)
+      if: matrix.os == 'windows'
+      shell: pwsh
+      run: Compress-Archive -Path Ethiocal.exe -DestinationPath ${{ matrix.artifact }}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: ${{ matrix.artifact }}
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+        merge-multiple: true
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        generate_release_notes: true
+        files: artifacts/*

@@ -23,6 +23,7 @@ func writeJSON(w http.ResponseWriter, status int, data any) {
 	}
 }
 
+// BahireHasab handles GET /api/bahir/{year} and returns festival dates as JSON.
 func BahireHasab(w http.ResponseWriter, r *http.Request) {
 	yearString := r.PathValue("year")
 	if yearString == "" {
@@ -79,6 +80,7 @@ func parseDate(w http.ResponseWriter, r *http.Request) (year, month, day int, ok
 	return year, month, day, true
 }
 
+// Ethiopian handles GET /api/gtoe/{date} and converts a Gregorian date to Ethiopian.
 func Ethiopian(w http.ResponseWriter, r *http.Request) {
 	year, month, day, ok := parseDate(w, r)
 	if !ok {
@@ -96,6 +98,7 @@ func Ethiopian(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Gregorian handles GET /api/etog/{date} and converts an Ethiopian date to Gregorian.
 func Gregorian(w http.ResponseWriter, r *http.Request) {
 	year, month, day, ok := parseDate(w, r)
 	if !ok {
@@ -113,11 +116,13 @@ func Gregorian(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Init starts the HTTP server with all API routes registered. It blocks until
+// a SIGINT or SIGTERM signal is received and then shuts down gracefully.
 func Init() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /v0/bahir/{year}", BahireHasab)
-	mux.HandleFunc("GET /v0/gtoe/{date}", Ethiopian)
-	mux.HandleFunc("GET /v0/etog/{date}", Gregorian)
+	mux.HandleFunc("GET /api/bahir/{year}", BahireHasab)
+	mux.HandleFunc("GET /api/gtoe/{date}", Ethiopian)
+	mux.HandleFunc("GET /api/etog/{date}", Gregorian)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -129,6 +134,7 @@ func Init() {
 		Handler: mux,
 	}
 
+	log.Printf("listening on :%s", port)
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("failed to start server: %v", err)
