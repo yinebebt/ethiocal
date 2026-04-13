@@ -3,14 +3,12 @@ package dateconverter
 import (
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 )
 
 // Gregorian converts an Ethiopian date to a Gregorian date, returned as a time.Time.
 func Gregorian(year, month, date int) (time.Time, error) {
 	var gregorianDate int
-	var dateResult string
 
 	if !isValidEthiopian(year, month, date) {
 		return time.Time{}, errors.New("not a valid date")
@@ -66,16 +64,7 @@ func Gregorian(year, month, date int) (time.Time, error) {
 	order := []int{8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 	gregorianMonth := order[m]
 
-	da := strconv.Itoa(gregorianDate)
-	mon := strconv.Itoa(gregorianMonth)
-	if len(da) == 1 {
-		da = "0" + da
-	}
-	if len(mon) == 1 {
-		mon = "0" + mon
-	}
-
-	dateResult = "" + strconv.Itoa(gregorianYear) + "-" + mon + "-" + da
+	dateResult := fmt.Sprintf("%04d-%02d-%02d", gregorianYear, gregorianMonth, gregorianDate)
 	res, err := time.Parse("2006-01-02", dateResult)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("unable to parse converted date %q: %w", dateResult, err)

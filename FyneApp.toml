@@ -4,5 +4,5 @@ Website = "https://github.com/yinebebt/ethiocal"
   Icon = "logo.png"
   Name = "Ethiocal"
   ID = "com.github.yinebebt.ethiocal"
-  Version = "1.2.0"
-  Build = 1
+  Version = "1.2.1"
+  Build = 2

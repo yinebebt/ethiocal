@@ -54,7 +54,7 @@ type Year struct {
 }
 
 // Date contains date of the month and month of the year.
-// መስከረም = 0, DateOfTheMonth goes 1 to 30
+// MonthOfTheYear is 1-based: መስከረም = 1 .. ጳጉሜን = 13. DateOfTheMonth goes 1 to 30.
 type Date struct {
 	DateOfTheMonth int `json:"date_of_the_month"`
 	MonthOfTheYear int `json:"month_of_the_year"`

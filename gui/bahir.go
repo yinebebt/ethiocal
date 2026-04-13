@@ -16,15 +16,16 @@ import (
 	"github.com/yinebebt/ethiocal/dateconverter"
 )
 
-// Ethiopian month names indexed by 0-based month number (0=Meskerem .. 12=Pagume).
+// ethMonths maps month index (0-based) to Amharic month name.
+// Use MonthOfTheYear-1 to look up since MonthOfTheYear is 1-based.
 var ethMonths = [13]string{
-	"Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir", "Yekatit",
-	"Megabit", "Miyazya", "Ginbot", "Sene", "Hamle", "Nehase", "Pagume",
+	"መስከረም", "ጥቅምት", "ኅዳር", "ታኅሣሥ", "ጥር", "የካቲት",
+	"መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜ",
 }
 
 func fmtDateNamed(d bahirehasab.Date) string {
-	if d.MonthOfTheYear >= 0 && d.MonthOfTheYear <= 12 {
-		return fmt.Sprintf("%s %d", ethMonths[d.MonthOfTheYear], d.DateOfTheMonth)
+	if d.MonthOfTheYear >= 1 && d.MonthOfTheYear <= 13 {
+		return fmt.Sprintf("%s %d (%02d-%02d)", ethMonths[d.MonthOfTheYear-1], d.DateOfTheMonth, d.MonthOfTheYear, d.DateOfTheMonth)
 	}
 	return fmt.Sprintf("Month %d, Day %d", d.MonthOfTheYear, d.DateOfTheMonth)
 }
@@ -56,10 +57,10 @@ func festivalRow(name, date string, odd bool) fyne.CanvasObject {
 func newBahirTab() fyne.CanvasObject {
 	curYear := currentEthiopianYear()
 
-	// Error label with red color.
-	errorText := canvas.NewText("", theme.Color(theme.ColorNameError))
-	errorText.TextSize = 14
-	errorText.Hide()
+	errorLabel := widget.NewLabel("")
+	errorLabel.Importance = widget.DangerImportance
+	errorLabel.Wrapping = fyne.TextWrapWord
+	errorLabel.Hide()
 
 	// Combined festival card — year info + festival rows in one card.
 	festContent := container.NewVBox()
@@ -71,22 +72,20 @@ func newBahirTab() fyne.CanvasObject {
 		year, err := strconv.Atoi(yearStr)
 		if err != nil || year < 0 {
 			festCard.Hide()
-			errorText.Text = "Please enter a valid Ethiopian year."
-			errorText.Show()
-			errorText.Refresh()
+			errorLabel.SetText("Please enter a valid Ethiopian year.")
+			errorLabel.Show()
 			return
 		}
 
 		festival, err := bahirehasab.BahireHasab(year)
 		if err != nil {
 			festCard.Hide()
-			errorText.Text = "Error: " + err.Error()
-			errorText.Show()
-			errorText.Refresh()
+			errorLabel.SetText("Error: " + err.Error())
+			errorLabel.Show()
 			return
 		}
-		errorText.Text = ""
-		errorText.Hide()
+		errorLabel.SetText("")
+		errorLabel.Hide()
 
 		// Year info row.
 		evangLbl := widget.NewLabel("Evangelist:")
@@ -135,8 +134,8 @@ func newBahirTab() fyne.CanvasObject {
 	yearEntry.OnChanged = func(s string) {
 		if s == "" {
 			festCard.Hide()
-			errorText.Text = ""
-			errorText.Hide()
+			errorLabel.SetText("")
+			errorLabel.Hide()
 			return
 		}
 		lookup(s)
@@ -165,7 +164,7 @@ func newBahirTab() fyne.CanvasObject {
 
 	content := container.NewVBox(
 		inputCard,
-		errorText,
+		errorLabel,
 		layout.NewSpacer(),
 		festCard,
 		layout.NewSpacer(),
