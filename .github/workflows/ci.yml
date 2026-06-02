@@ -12,16 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
+    - uses: ./.github/actions/setup
       with:
-        go-version: '1.26'
-
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc libgl1-mesa-dev xorg-dev
+        gl: 'true'
 
     - name: golangci-lint
       uses: golangci/golangci-lint-action@v7
@@ -32,84 +25,96 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
+    - uses: ./.github/actions/setup
       with:
-        go-version: '1.26'
-
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc libgl1-mesa-dev xorg-dev
+        gl: 'true'
 
     - name: Test
       run: go test -v -cover ./...
 
-  # Package platform-native app bundles on each OS runner (CGO requires native C compiler).
-  package:
+  # Desktop: GUI bundle + native CLI/server binary, built per OS then uploaded.
+  desktop:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [ lint, test ]
     strategy:
       fail-fast: false
       matrix:
         include:
-          - runner: ubuntu-latest
-            os: linux
-            artifact: ethiocal-linux-amd64.tar.xz
-          - runner: macos-latest
-            os: darwin
-            artifact: ethiocal-macos-arm64.app.zip
-          - runner: macos-15-intel
-            os: darwin
-            artifact: ethiocal-macos-amd64.app.zip
-          - runner: windows-latest
-            os: windows
-            artifact: ethiocal-windows-amd64.exe.zip
+          - { runner: ubuntu-latest,  os: linux,   artifact: ethiocal-linux-amd64.tar.xz,   cli: ethiocal-cli-linux-amd64 }
+          - { runner: macos-latest,   os: darwin,  artifact: ethiocal-macos-arm64.app.zip,  cli: ethiocal-cli-macos-arm64 }
+          - { runner: macos-15-intel, os: darwin,  artifact: ethiocal-macos-amd64.app.zip,  cli: ethiocal-cli-macos-amd64 }
+          - { runner: windows-latest, os: windows, artifact: ethiocal-windows-amd64.exe.zip, cli: ethiocal-cli-windows-amd64.exe }
 
     runs-on: ${{ matrix.runner }}
     steps:
     - uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
+    - uses: ./.github/actions/setup
       with:
-        go-version: '1.26'
+        gl: 'true'
+        fyne: 'true'
 
-    - name: Install system dependencies (Linux)
-      if: matrix.os == 'linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc libgl1-mesa-dev xorg-dev
-
-    - name: Install fyne CLI
-      run: go install fyne.io/tools/cmd/fyne@latest
-
-    - name: Package
+    # Build both: GUI bundle (CGO) and CLI (pure Go).
+    - name: Build GUI bundle
       run: fyne package -os ${{ matrix.os }} -release
 
-    - name: Prepare artifact (macOS)
+    - name: Build CLI
+      env:
+        CGO_ENABLED: '0'
+      run: go build -trimpath -ldflags '-s -w' -o ${{ matrix.cli }} ./cmd/ethiocal-cli
+
+    # Pack the GUI bundle into one named file (fyne's output differs per OS).
+    - name: Pack GUI bundle (macOS)
       if: matrix.os == 'darwin'
       run: zip -r ${{ matrix.artifact }} Ethiocal.app
 
-    - name: Prepare artifact (Linux)
+    - name: Pack GUI bundle (Linux)
       if: matrix.os == 'linux'
       run: mv Ethiocal.tar.xz ${{ matrix.artifact }}
 
-    - name: Prepare artifact (Windows)
+    - name: Pack GUI bundle (Windows)
       if: matrix.os == 'windows'
       shell: pwsh
       run: Compress-Archive -Path Ethiocal.exe -DestinationPath ${{ matrix.artifact }}
 
-    - name: Upload artifact
+    - name: Upload GUI bundle
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
         path: ${{ matrix.artifact }}
 
+    - name: Upload CLI
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.cli }}
+        path: ${{ matrix.cli }}
+
+  # Mobile: arm64-v8a APK. Debug-signed for sideloading; 
+  # NDK preinstalled on the runner; metadata from FyneApp.toml.
+  mobile:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [ lint, test ]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/setup
+      with:
+        fyne: 'true'
+
+    # Uses the runner's preinstalled NDK via its default ANDROID_NDK_HOME.
+    - name: Build APK
+      run: |
+        fyne package --os android/arm64
+        mv Ethiocal.apk ethiocal-android.apk
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: ethiocal-android.apk
+        path: ethiocal-android.apk
+
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: package
+    needs: [ desktop, mobile ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
