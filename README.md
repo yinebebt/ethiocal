@@ -16,9 +16,9 @@ plus a 5- or 6-day 13th month).
 
 ### Features
 
-* **GUI desktop app** — launch with no arguments for a graphical interface.
-* **CLI** — subcommands for scripting and terminal use.
-* **HTTP API** — run as a server for integration with other services.
+* **GUI app** — graphical interface for desktop (macOS/Linux/Windows) and Android.
+* **CLI** — `ethiocal-cli` subcommands for scripting and terminal use.
+* **HTTP API** — run `ethiocal-cli --server` for integration with other services.
 * Get Ethiopian fasting and religious festival dates for a specific year.
 * Convert Ethiopian dates to Gregorian dates and vice versa.
 
@@ -34,6 +34,9 @@ Pre-built binaries are available on the [Releases](https://github.com/yinebebt/e
 | macOS (Intel) | `curl -Lo ethiocal.zip https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-macos-amd64.app.zip && unzip ethiocal.zip` |
 | Linux (x86_64) | `curl -Lo ethiocal.tar.xz https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-linux-amd64.tar.xz && tar xJf ethiocal.tar.xz` |
 | Windows (x86_64) | `curl -Lo ethiocal.zip https://github.com/yinebebt/ethiocal/releases/latest/download/ethiocal-windows-amd64.exe.zip && unzip ethiocal.zip` |
+| Android (arm64) | [`ethiocal-android.apk`](https://github.com/yinebebt/ethiocal/releases/latest) — sideload on a 64-bit device |
+
+The CLI/server tool ships per platform too, as `ethiocal-cli-<os>-<arch>` on the same Releases page.
 
 ### Install with Go
 
@@ -46,18 +49,18 @@ go install github.com/yinebebt/ethiocal@latest
 ```bash
 git clone https://github.com/yinebebt/ethiocal.git
 cd ethiocal
-go build -o ethiocal .
+make build    # builds both: ./ethiocal (GUI) and ./ethiocal-cli (CLI + server)
 ```
 
-> **Note:** Building requires a C compiler and OpenGL headers because Fyne uses
-> CGO. On Ubuntu/Debian: `sudo apt-get install libgl1-mesa-dev xorg-dev`.
-> macOS and Windows have these out of the box.
+> **Note:** Building the GUI app requires a C compiler and OpenGL headers because
+> Fyne uses CGO. On Ubuntu/Debian: `sudo apt-get install libgl1-mesa-dev xorg-dev`.
+> macOS and Windows have these out of the box. The CLI builds with pure Go (no CGO).
 
 ## Usage
 
-### GUI (default)
+### GUI
 
-Run `ethiocal` with no arguments to launch the desktop app:
+Run `ethiocal` (or launch the packaged app) to open the GUI:
 
 ```bash
 ethiocal
@@ -65,26 +68,30 @@ ethiocal
 
 The GUI provides two tabs:
 
-* **Date Converter** — pick a direction (Gregorian → Ethiopian or Ethiopian → Gregorian), enter a date, and convert.
+* **Date Converter** — pick a direction (Gregorian → Ethiopian or Ethiopian → Gregorian), pick a date from the calendar, and convert.
 * **Bahire-Hasab** — enter an Ethiopian year to view all fasting and festival dates.
 
 ### CLI
 
+The terminal/server tool is a separate binary (`ethiocal-cli`), so the GUI app
+carries no CLI dependencies. Install with
+`go install github.com/yinebebt/ethiocal/cmd/ethiocal-cli@latest`.
+
 ```bash
 # Get religious dates for Ethiopian year 2017
-ethiocal bahir 2017
+ethiocal-cli bahir 2017
 
 # Convert Gregorian date to Ethiopian (year month day as separate args)
-ethiocal convert gtoe 2025 2 2
+ethiocal-cli convert gtoe 2025 2 2
 
 # Convert Ethiopian date to Gregorian
-ethiocal convert etog 2017 5 25
+ethiocal-cli convert etog 2017 5 25
 ```
 
 ### HTTP Server
 
 ```bash
-ethiocal --server
+ethiocal-cli --server
 ```
 
 Starts the API on port `8080` (override with the `PORT` environment variable).
