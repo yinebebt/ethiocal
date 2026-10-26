@@ -2,3 +2,5 @@
 .idea
 ethiocal
 *.apk
+*.app
+Ethiocal.app/
