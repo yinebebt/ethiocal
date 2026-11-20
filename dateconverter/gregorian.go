@@ -40,11 +40,6 @@ func Gregorian(year, month, date int) (time.Time, error) {
 		until += newYearDay - 1
 	}
 
-	// if ethiopian year is leap year, paguemain has six days
-	if (year-1)%4 == 3 {
-		until++
-	}
-
 	//calculate month and date incrementally
 	m := 0
 	for i := range gregorianMonths {

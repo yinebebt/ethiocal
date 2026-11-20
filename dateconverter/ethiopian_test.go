@@ -53,7 +53,7 @@ func TestGregorian_pagume(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !got.Equal(time.Date(2024, 9, 11, 0, 0, 0, 0, time.UTC)) {
+	if !got.Equal(time.Date(2024, 9, 10, 0, 0, 0, 0, time.UTC)) {
 		t.Errorf("non-leap pagume 5: got %v", got)
 	}
 }
@@ -82,5 +82,60 @@ func TestInvalid(t *testing.T) {
 	}
 	if _, err := Gregorian(2016, 13, 6); err == nil {
 		t.Error("pagume 6 non-leap")
+	}
+}
+
+func TestGregorian_yearsDivisibleByFour(t *testing.T) {
+	t.Parallel()
+
+	pairs := []struct{ ey, em, ed, gy, gm, gd int }{
+		{2016, 1, 1, 2023, 9, 12},
+		{2016, 9, 14, 2024, 5, 22},
+		{2020, 1, 1, 2027, 9, 12},
+		{1992, 1, 1, 1999, 9, 12},
+		// century years: the Julian-Gregorian gap grows after February 1900 and 2100
+		{1892, 1, 1, 1899, 9, 11},
+		{1893, 1, 1, 1900, 9, 11},
+		{2093, 1, 1, 2100, 9, 12},
+	}
+	for _, tt := range pairs {
+		got, err := Gregorian(tt.ey, tt.em, tt.ed)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want := time.Date(tt.gy, time.Month(tt.gm), tt.gd, 0, 0, 0, 0, time.UTC); !got.Equal(want) {
+			t.Errorf("Gregorian(%d, %d, %d): got %v, want %v", tt.ey, tt.em, tt.ed, got.Format("2006-01-02"), want.Format("2006-01-02"))
+		}
+	}
+
+	got, err := Ethiopian(1901, 1, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := time.Date(1893, 4, 23, 0, 0, 0, 0, time.UTC); !got.Equal(want) {
+		t.Errorf("Ethiopian(1901, 1, 1): got %v, want %v", got.Format("2006-01-02"), want.Format("2006-01-02"))
+	}
+}
+
+func TestGregorian_consecutiveDays(t *testing.T) {
+	t.Parallel()
+
+	// The last day of each Ethiopian year must be followed by Meskerem 1 of the next.
+	for year := 1600; year <= 2400; year++ {
+		pagume := 5
+		if year%4 == 3 {
+			pagume = 6
+		}
+		last, err := Gregorian(year, 13, pagume)
+		if err != nil {
+			t.Fatal(err)
+		}
+		first, err := Gregorian(year+1, 1, 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !first.Equal(last.AddDate(0, 0, 1)) {
+			t.Errorf("Pagume %d, %d = %v but Meskerem 1, %d = %v", pagume, year, last.Format("2006-01-02"), year+1, first.Format("2006-01-02"))
+		}
 	}
 }
