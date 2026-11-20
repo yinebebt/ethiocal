@@ -36,6 +36,11 @@ func Gregorian(year, month, date int) (time.Time, error) {
 	if until <= 37 && year <= 1575 {
 		until += 28
 		gregorianMonths[0] = 31
+		// The Julian new year is a day later after an Ethiopian leap year;
+		// this branch does not go through startDayOfEthiopian.
+		if (year-1)%4 == 3 {
+			until++
+		}
 	} else {
 		until += newYearDay - 1
 	}

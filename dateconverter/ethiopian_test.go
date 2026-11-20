@@ -139,3 +139,27 @@ func TestGregorian_consecutiveDays(t *testing.T) {
 		}
 	}
 }
+
+func TestGregorian_julianYearsDivisibleByFour(t *testing.T) {
+	t.Parallel()
+
+	// Before 1582 the result is a Julian date. After an Ethiopian leap year,
+	// Meskerem 1 falls on August 30 instead of August 29.
+	pairs := []struct{ ey, em, ed, gy, gm, gd int }{
+		{4, 1, 1, 11, 8, 30},
+		{1500, 1, 1, 1507, 8, 30},
+		{1572, 1, 1, 1579, 8, 30},
+		{1572, 2, 7, 1579, 10, 5},
+		{1571, 1, 1, 1578, 8, 29},
+		{1573, 1, 1, 1580, 8, 29},
+	}
+	for _, tt := range pairs {
+		got, err := Gregorian(tt.ey, tt.em, tt.ed)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want := time.Date(tt.gy, time.Month(tt.gm), tt.gd, 0, 0, 0, 0, time.UTC); !got.Equal(want) {
+			t.Errorf("Gregorian(%d, %d, %d): got %v, want %v", tt.ey, tt.em, tt.ed, got.Format("2006-01-02"), want.Format("2006-01-02"))
+		}
+	}
+}
