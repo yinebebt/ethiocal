@@ -4,7 +4,10 @@ import "time"
 
 func startDayOfEthiopian(year int) int {
 	// newYearDay is the start of Ethiopian new year in the Gregorian calendar.
-	newYearDay := (year / 100) - (year / 400) - 4
+	// The century terms are the Julian-Gregorian gap, so they come from the
+	// Gregorian year in which Meskerem 1 falls (year + 7), not the Ethiopian year.
+	gregorianYear := year + 7
+	newYearDay := (gregorianYear / 100) - (gregorianYear / 400) - 4
 
 	// If the previous Ethiopian year is a leap year, new year occurs on the 12th.
 	if (year-1)%4 == 3 {
