@@ -11,7 +11,10 @@ func Ethiopian(year, month, date int) (time.Time, error) {
 	var december int
 	var ethiopianDate int
 
-	if !isValidGregorian(year, month, date) {
+	// Before 15 Oct 1582 the date is Julian: every fourth year is a leap year.
+	julian := year < 1582 || (year == 1582 && (month < 10 || (month == 10 && date < 5)))
+
+	if !isValidGregorian(year, month, date) && !(julian && year%4 == 0 && month == 2 && date == 29) {
 		return time.Time{}, errors.New("not a valid date")
 	}
 
@@ -25,11 +28,12 @@ func Ethiopian(year, month, date int) (time.Time, error) {
 	gregorianMonths := []int{0, 31, 28, 31, 30, 31, 30,
 		31, 31, 30, 31, 30, 31}
 
+	// Index 15 is the next Tir, which starts in late December in Julian years.
 	ethiopianMonths := []int{0, 30, 30, 30, 30, 30, 30, 30,
-		30, 30, 5, 30, 30, 30, 30}
+		30, 30, 5, 30, 30, 30, 30, 30}
 
 	//  if gregorian leap year, February has 29 days.
-	if (year%4 == 0 && year%100 != 0) || year%400 == 0 {
+	if (julian && year%4 == 0) || (year%4 == 0 && year%100 != 0) || year%400 == 0 {
 		gregorianMonths[2] = 29
 	}
 	//  September sees 8y difference
@@ -58,13 +62,11 @@ func Ethiopian(year, month, date int) (time.Time, error) {
 		december = 25
 	}
 
-	// Julian alignment before 15 Oct 1582.
-	if year < 1582 {
+	// Julian alignment before 15 Oct 1582: January 1 is Tir 6 (Tir 5 after
+	// an Ethiopian leap year), so Tir starts in December. Count from Tir 1.
+	if julian {
+		until += 30 - december
 		ethiopianMonths[1] = 0
-		ethiopianMonths[2] = december
-	} else if until <= 277 && year == 1582 {
-		ethiopianMonths[1] = 0
-		ethiopianMonths[2] = december
 	} else {
 		december = newYearDay - 3
 		ethiopianMonths[1] = december
@@ -88,7 +90,7 @@ func Ethiopian(year, month, date int) (time.Time, error) {
 		ethiopianYear++
 	}
 	// Ethiopian months ordered according to Gregorian
-	order := []int{0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1, 2, 3, 4}
+	order := []int{0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1, 2, 3, 4, 5}
 	ethiopianMonth := order[m]
 
 	dateResult := fmt.Sprintf("%04d-%02d-%02d", ethiopianYear, ethiopianMonth, ethiopianDate)

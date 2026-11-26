@@ -163,3 +163,34 @@ func TestGregorian_julianYearsDivisibleByFour(t *testing.T) {
 		}
 	}
 }
+
+func TestEthiopian_julian(t *testing.T) {
+	t.Parallel()
+
+	// Before 15 Oct 1582 the input is a Julian date. Genna (Tahsas 29) is
+	// December 25, so January 1 is Tir 6, or Tir 5 after an Ethiopian leap year.
+	pairs := []struct{ gy, gm, gd, ey, em, ed int }{
+		{1581, 1, 1, 1573, 5, 6},
+		{1580, 1, 1, 1572, 5, 5},
+		{1581, 1, 25, 1573, 5, 30},
+		{1581, 1, 26, 1573, 6, 1},
+		{1581, 12, 25, 1574, 4, 29},
+		{1581, 12, 27, 1574, 5, 1},
+		{1581, 12, 31, 1574, 5, 5},
+		// Julian century years are leap years.
+		{1500, 1, 1, 1492, 5, 5},
+		{1500, 2, 29, 1492, 7, 4},
+		{1500, 3, 1, 1492, 7, 5},
+		{1500, 12, 31, 1493, 5, 5},
+	}
+	for _, tt := range pairs {
+		got, err := Ethiopian(tt.gy, tt.gm, tt.gd)
+		if err != nil {
+			t.Errorf("Ethiopian(%d, %d, %d): %v", tt.gy, tt.gm, tt.gd, err)
+			continue
+		}
+		if want := time.Date(tt.ey, time.Month(tt.em), tt.ed, 0, 0, 0, 0, time.UTC); !got.Equal(want) {
+			t.Errorf("Ethiopian(%d, %d, %d): got %v, want %v", tt.gy, tt.gm, tt.gd, got.Format("2006-01-02"), want.Format("2006-01-02"))
+		}
+	}
+}
