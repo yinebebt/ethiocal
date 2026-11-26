@@ -33,3 +33,24 @@ func TestParseDate(t *testing.T) {
 		}
 	}
 }
+
+func TestGregorianLong(t *testing.T) {
+	tests := []struct {
+		y, m, d int
+		want    string
+	}{
+		// Julian dates: century years are leap years.
+		{1500, 2, 29, "Saturday, February 29, 1500"},
+		{1500, 3, 1, "Sunday, March 1, 1500"},
+		{1581, 1, 1, "Sunday, January 1, 1581"},
+		// The last Julian day and the first Gregorian day.
+		{1582, 10, 4, "Thursday, October 4, 1582"},
+		{1582, 10, 15, "Friday, October 15, 1582"},
+		{2025, 2, 1, "Saturday, February 1, 2025"},
+	}
+	for _, tt := range tests {
+		if got := gregorianLong(tt.y, tt.m, tt.d); got != tt.want {
+			t.Errorf("gregorianLong(%d, %d, %d) = %q, want %q", tt.y, tt.m, tt.d, got, tt.want)
+		}
+	}
+}

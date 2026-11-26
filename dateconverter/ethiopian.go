@@ -14,7 +14,8 @@ func Ethiopian(year, month, date int) (time.Time, error) {
 	// Before 15 Oct 1582 the date is Julian: every fourth year is a leap year.
 	julian := year < 1582 || (year == 1582 && (month < 10 || (month == 10 && date < 5)))
 
-	if !isValidGregorian(year, month, date) && !(julian && year%4 == 0 && month == 2 && date == 29) {
+	julianLeapDay := julian && year%4 == 0 && month == 2 && date == 29
+	if !isValidGregorian(year, month, date) && !julianLeapDay {
 		return time.Time{}, errors.New("not a valid date")
 	}
 
@@ -32,7 +33,8 @@ func Ethiopian(year, month, date int) (time.Time, error) {
 	ethiopianMonths := []int{0, 30, 30, 30, 30, 30, 30, 30,
 		30, 30, 5, 30, 30, 30, 30, 30}
 
-	//  if gregorian leap year, February has 29 days.
+	//  February has 29 days in a leap year: every fourth year in a Julian
+	//  year, else the Gregorian rule (not centuries, except every 400 years).
 	if (julian && year%4 == 0) || (year%4 == 0 && year%100 != 0) || year%400 == 0 {
 		gregorianMonths[2] = 29
 	}

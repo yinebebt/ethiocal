@@ -56,7 +56,7 @@ var gtoeCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Printf("\nGregorian Date: %s\n", dateconverter.FormatGregorian(time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)))
+		fmt.Printf("\nGregorian Date: %s\n", gregorianLong(year, month, day))
 		fmt.Printf("  %04d-%02d-%02d\n", year, month, day)
 		if long, err := dateconverter.FormatEthiopian(etDate.Year(), int(etDate.Month()), etDate.Day()); err == nil {
 			fmt.Println("Converted Ethiopian Date:", long)
@@ -95,4 +95,20 @@ var etogCmd = &cobra.Command{
 func init() {
 	convertCmd.AddCommand(gtoeCmd)
 	convertCmd.AddCommand(etogCmd)
+}
+
+// gregorianLong formats a date given in the calendar that Ethiopian reads:
+// Julian before 15 Oct 1582, Gregorian after. time.Date uses Gregorian rules
+// only, so it would turn Julian 1500-02-29 into March 1 and give Julian dates
+// the wrong weekday.
+func gregorianLong(year, month, day int) string {
+	if year > 1582 || (year == 1582 && (month > 10 || (month == 10 && day >= 15))) {
+		return dateconverter.FormatGregorian(time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC))
+	}
+	// Julian day number of a Julian calendar date; JDN + 1 mod 7 is the weekday.
+	a := (14 - month) / 12
+	y := year + 4800 - a
+	m := month + 12*a - 3
+	jdn := day + (153*m+2)/5 + 365*y + y/4 - 32083
+	return fmt.Sprintf("%s, %s %d, %d", time.Weekday((jdn+1)%7), time.Month(month), day, year)
 }

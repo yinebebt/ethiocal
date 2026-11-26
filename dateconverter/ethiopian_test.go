@@ -182,6 +182,9 @@ func TestEthiopian_julian(t *testing.T) {
 		{1500, 2, 29, 1492, 7, 4},
 		{1500, 3, 1, 1492, 7, 5},
 		{1500, 12, 31, 1493, 5, 5},
+		// 1582 before the reform is Julian too.
+		{1582, 1, 1, 1574, 5, 6},
+		{1582, 9, 30, 1575, 2, 3},
 	}
 	for _, tt := range pairs {
 		got, err := Ethiopian(tt.gy, tt.gm, tt.gd)
